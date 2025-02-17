@@ -1,10 +1,16 @@
-const weatherForm = document.querySelector(".weatherForm");
-
-const cityInput = document.querySelector(".cityInput");
-
+const weatherForm = document.querySelector(".input-weather");
+const cityInput = document.querySelector(".input");
 const card = document.querySelector(".card");
-
 const apiKey = "c74ae5dd629ba1d20735430513510b02";
+
+const vids = {
+  sunny: { source: "sunny.mp4", type: "video/mp4" },
+  cloud: { source: "cloud.mp4", type: "video/mp4" },
+  thunder: { source: "thunder.mp4", type: "video/mp4" },
+  snow: { source: "snow.mp4", type: "video/mp4" },
+  fog: { source: "fog.mp4", type: "video/mp4" },
+  rain: { source: "rain.mp4", type: "video/mp4" }
+};
 
 weatherForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -16,6 +22,7 @@ weatherForm.addEventListener("submit", async (event) => {
       const weatherData = await getWeatherData(city);
 
       displayWeatherInfo(weatherData);
+      displayBackgroundVideo(weatherData.weather[0].id);
     } catch (error) {
       console.error(error);
 
@@ -41,82 +48,94 @@ async function getWeatherData(city) {
 function displayWeatherInfo(data) {
   const {
     name: city,
-
     main: { temp, humidity },
-
     weather: [{ description, id }],
   } = data;
 
   card.textContent = "";
-
   card.style.display = "flex";
 
   const cityDisplay = document.createElement("h1");
-
   const tempDisplay = document.createElement("p");
-
   const humidityDisplay = document.createElement("p");
-
   const descDisplay = document.createElement("p");
-
   const weatherEmoji = document.createElement("p");
 
   cityDisplay.textContent = city;
-
-  tempDisplay.textContent = `${((temp - 273.15) * (9 / 5) + 32).toFixed(1)}°F`;
-
+  tempDisplay.textContent = `${(temp - 273.15).toFixed(2)}°C`;
   humidityDisplay.textContent = `Humidity: ${humidity}%`;
-
   descDisplay.textContent = description;
-
   weatherEmoji.textContent = getWeatherEmoji(id);
 
-  cityDisplay.classList.add("cityDisplay");
-
-  tempDisplay.classList.add("tempDisplay");
-
-  humidityDisplay.classList.add("humidityDisplay");
-
-  descDisplay.classList.add("descDisplay");
-
-  weatherEmoji.classList.add("weatherEmoji");
-
   card.appendChild(cityDisplay);
-
   card.appendChild(tempDisplay);
-
   card.appendChild(humidityDisplay);
-
   card.appendChild(descDisplay);
-
   card.appendChild(weatherEmoji);
 }
 
 function getWeatherEmoji(weatherId) {
   switch (true) {
     case weatherId >= 200 && weatherId < 300:
-      return "⛈";
-
+      return "⛈️" ; 
     case weatherId >= 300 && weatherId < 400:
-      return "🌧";
-
+      return "🌧️"; 
     case weatherId >= 500 && weatherId < 600:
-      return "🌧";
-
+      return "🌧️";
     case weatherId >= 600 && weatherId < 700:
-      return "❄";
-
+      return "❄️" ; 
     case weatherId >= 700 && weatherId < 800:
-      return "🌫";
-
+      return "🌫️" ; 
     case weatherId === 800:
-      return "☀";
-
+      return "☀️" ;  
     case weatherId >= 801 && weatherId < 810:
-      return "☁";
+      return "☁️" ; 
+  }
+}
 
-    default:
-      return "❓";
+function getWeatherVideo(weatherId) {
+  if (weatherId >= 200 && weatherId < 300) {
+    return  vids.thunder;
+  } else if (weatherId >= 300 && weatherId < 400) {
+    return vids.rain;
+  } else if (weatherId >= 500 && weatherId < 600) {
+    return   vids.rain;
+  } else if (weatherId >= 600 && weatherId < 700) {
+    return  vids.snow;
+  } else if (weatherId >= 700 && weatherId < 800) {
+    return   vids.fog;
+  } else if (weatherId === 800) {
+    return   vids.sunny;
+  } else if (weatherId >= 801 && weatherId < 810) {
+    return  vids.cloud;
+  } else {
+    return null;
+  }
+}
+
+function displayBackgroundVideo(weatherId) {
+  const videoData = getWeatherVideo(weatherId);
+
+  if (videoData) {
+    console.log("Changing video to: ", videoData.source);
+
+    const videoElement = document.createElement("video");
+
+    videoElement.src = videoData.source;
+    videoElement.type = videoData.type;
+    videoElement.autoplay = true;
+    videoElement.loop = true;
+    videoElement.muted = true;
+    videoElement.classList.add("bg-video");
+
+    const existingVideo = document.querySelector("video.bg-video");
+    if (existingVideo) {
+      console.log("Removing existing video...");
+      existingVideo.remove();
+    }
+
+    const body = document.querySelector("body");
+    body.appendChild(videoElement);
   }
 }
 
@@ -124,12 +143,10 @@ function displayError(message) {
   const errorDisplay = document.createElement("p");
 
   errorDisplay.textContent = message;
-
   errorDisplay.classList.add("errorDisplay");
 
   card.textContent = "";
-
   card.style.display = "flex";
-
+  
   card.appendChild(errorDisplay);
 }
