@@ -56,7 +56,6 @@ button[type="submit"]:hover{
     background: transparent;
     backdrop-filter: blur(20px);
     color: white;
-    box-shadow: 4px 4px rgb(0, 0, 0);
     padding: 30px;
     border-radius: 12px;
     position: absolute;  
